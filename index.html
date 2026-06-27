@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Prakul — Mechanical Engineering</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:           #F5F8FB;
+      --ink:          #0F1E2D;
+      --accent:       #2A8FC4;
+      --accent-mid:   #1A6E9E;
+      --accent-light: #D6EEF8;
+      --rule:         #C8DCE9;
+      --muted:        #5A7A8E;
+      --white:        #FFFFFF;
+      --serif: 'DM Serif Display', Georgia, serif;
+      --sans:  'Inter', system-ui, sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ─── VIEWS ─────────────────────────────── */
+    .view { display: none; min-height: 100vh; }
+    .view.active { display: block; }
+
+    /* fade transition */
+    .view { opacity: 0; transition: opacity 0.28s ease; }
+    .view.active { opacity: 1; }
+
+    /* ─── NAV ────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.1rem 5vw;
+      background: rgba(245,248,251,0.93);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--rule);
+    }
+    .nav-logo {
+      font-family: var(--serif); font-size: 1.1rem;
+      color: var(--ink); text-decoration: none; cursor: pointer;
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      font-size: 0.8rem; font-weight: 500; letter-spacing: 0.07em;
+      text-transform: uppercase; text-decoration: none; color: var(--muted);
+      transition: color 0.2s; cursor: pointer;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    /* ─── SHARED ─────────────────────────────── */
+    section { padding: 6.5rem 5vw; }
+    .container { max-width: 880px; margin: 0 auto; }
+
+    .tick-rule { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; }
+    .tick-rule::before { content:''; display:block; width:28px; height:2px; background:var(--accent); flex-shrink:0; }
+    .tick-label { font-size:0.7rem; font-weight:600; letter-spacing:0.13em; text-transform:uppercase; color:var(--accent); }
+
+    h2 { font-family: var(--serif); font-size: clamp(1.8rem,4vw,2.6rem); line-height:1.15; margin-bottom:0.4rem; }
+    .section-sub { color: var(--muted); font-size:0.95rem; margin-bottom:2.5rem; }
+
+    .btn {
+      display:inline-block; text-decoration:none; font-size:0.82rem; font-weight:600;
+      letter-spacing:0.05em; padding:0.72rem 1.6rem; border-radius:4px;
+      transition:all 0.2s; cursor:pointer; border:none; font-family:var(--sans);
+    }
+    .btn-primary { background:var(--accent); color:#fff; }
+    .btn-primary:hover { background:var(--accent-mid); }
+    .btn-ghost { border:1.5px solid var(--rule); color:var(--ink); background:var(--white); }
+    .btn-ghost:hover { border-color:var(--accent); color:var(--accent); }
+
+    /* ─── HOME: HERO ─────────────────────────── */
+    #hero { min-height:100vh; display:flex; align-items:center; padding-top:5rem; }
+    .hero-inner { max-width:740px; }
+    .hero-eyebrow {
+      font-size:0.77rem; font-weight:500; letter-spacing:0.1em; text-transform:uppercase;
+      color:var(--muted); margin-bottom:1.25rem;
+    }
+    h1 { font-family:var(--serif); font-size:clamp(2.8rem,7vw,5rem); line-height:1.07; margin-bottom:1.4rem; }
+    h1 em { font-style:italic; color:var(--accent); }
+    .hero-sub { font-size:1.05rem; color:var(--muted); max-width:560px; line-height:1.8; margin-bottom:2.5rem; }
+    .hero-cta { display:flex; gap:1rem; flex-wrap:wrap; }
+
+    /* ─── HOME: PROJECTS GRID ────────────────── */
+    #projects-section { background:var(--white); border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); }
+    .projects-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:1.5rem; }
+
+    .project-card {
+      border:1px solid var(--rule); border-radius:6px; overflow:hidden;
+      background:var(--bg); display:flex; flex-direction:column;
+      transition: box-shadow 0.22s, transform 0.22s;
+      cursor:pointer;
+    }
+    .project-card:hover { box-shadow:0 10px 28px rgba(42,143,196,0.14); transform:translateY(-4px); }
+    .project-card.wip { border-style:dashed; border-color:var(--accent); background:rgba(42,143,196,0.03); }
+
+    .card-thumb {
+      width:100%; aspect-ratio:16/9; overflow:hidden;
+      background:var(--accent-light);
+      display:flex; align-items:center; justify-content:center;
+      position:relative;
+    }
+    .card-thumb img { width:100%; height:100%; object-fit:cover; display:block; transition:transform 0.35s; }
+    .project-card:hover .card-thumb img { transform:scale(1.04); }
+    .thumb-placeholder {
+      display:flex; flex-direction:column; align-items:center; gap:0.5rem;
+      font-size:0.7rem; font-weight:600; letter-spacing:0.07em; text-transform:uppercase;
+      color:var(--accent); text-align:center; padding:1rem; pointer-events:none;
+    }
+    .thumb-placeholder svg { opacity:0.3; }
+    .card-arrow {
+      position:absolute; bottom:0.75rem; right:0.75rem;
+      width:28px; height:28px; border-radius:50%;
+      background:rgba(255,255,255,0.9); display:flex; align-items:center; justify-content:center;
+      opacity:0; transform:translateY(4px); transition:all 0.2s;
+    }
+    .project-card:hover .card-arrow { opacity:1; transform:translateY(0); }
+
+    .card-body { padding:1.15rem 1.4rem 1.4rem; flex:1; display:flex; flex-direction:column; }
+    .card-tag { font-size:0.67rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent); margin-bottom:0.4rem; }
+    .card-title { font-family:var(--serif); font-size:1.12rem; margin-bottom:0.45rem; line-height:1.25; }
+    .card-desc { font-size:0.87rem; color:var(--muted); line-height:1.62; flex:1; }
+
+    .card-stats { margin-top:1rem; padding-top:0.9rem; border-top:1px solid var(--rule); display:flex; gap:1.25rem; flex-wrap:wrap; }
+    .cstat { display:flex; flex-direction:column; }
+    .cstat-num { font-family:var(--serif); font-size:1.35rem; color:var(--accent); line-height:1; }
+    .cstat-label { font-size:0.63rem; font-weight:500; letter-spacing:0.05em; text-transform:uppercase; color:var(--muted); margin-top:0.12rem; }
+
+    .wip-badge {
+      display:inline-flex; align-items:center; gap:0.35rem;
+      font-size:0.63rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase;
+      color:var(--white); background:var(--accent); border-radius:100px;
+      padding:0.22rem 0.6rem; margin-bottom:0.65rem; width:fit-content;
+    }
+    .wip-dot { width:6px; height:6px; border-radius:50%; background:#fff; animation:pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+    /* ─── HOME: ABOUT ────────────────────────── */
+    #about-section { }
+    #about-section .container { display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:start; }
+    .about-body p { color:var(--muted); margin-bottom:1rem; font-size:0.96rem; }
+    .about-stats { display:flex; flex-direction:column; gap:1.1rem; }
+    .astat { padding:1rem 1.3rem; border:1px solid var(--rule); border-left:3px solid var(--accent); background:var(--white); border-radius:3px; }
+    .astat-num { font-family:var(--serif); font-size:1.7rem; color:var(--accent); line-height:1; margin-bottom:0.18rem; }
+    .astat-label { font-size:0.7rem; font-weight:500; letter-spacing:0.05em; text-transform:uppercase; color:var(--muted); }
+
+    /* ─── HOME: SKILLS ───────────────────────── */
+    #skills-section { background:var(--white); border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); }
+    .skills-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(185px,1fr)); gap:2rem; margin-top:2.25rem; }
+    .skill-group h3 {
+      font-size:0.68rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase;
+      color:var(--muted); margin-bottom:0.9rem; padding-bottom:0.45rem; border-bottom:1px solid var(--rule);
+    }
+    .skill-list { list-style:none; display:flex; flex-direction:column; gap:0.42rem; }
+    .skill-list li { font-size:0.88rem; color:var(--ink); display:flex; align-items:center; gap:0.48rem; }
+    .skill-list li::before { content:''; width:5px; height:5px; border-radius:50%; background:var(--accent); flex-shrink:0; }
+
+    /* ─── HOME: CONTACT ──────────────────────── */
+    #contact-section { text-align:center; }
+    #contact-section .container { max-width:540px; }
+    .contact-heading { font-family:var(--serif); font-size:clamp(2rem,5vw,3rem); margin-bottom:0.9rem; }
+    .contact-sub { color:var(--muted); margin-bottom:2.25rem; font-size:0.96rem; line-height:1.78; }
+    .contact-links { display:flex; justify-content:center; gap:1rem; flex-wrap:wrap; }
+
+    /* ─── HOME: FOOTER ───────────────────────── */
+    footer {
+      border-top:1px solid var(--rule); padding:1.5rem 5vw;
+      display:flex; justify-content:space-between; align-items:center;
+      font-size:0.76rem; color:var(--muted);
+    }
+
+    /* ═══════════════════════════════════════════
+       PROJECT DETAIL VIEW
+    ═══════════════════════════════════════════ */
+    #detail-view { padding-top: 64px; }
+
+    /* back bar */
+    .detail-back-bar {
+      padding: 1.1rem 5vw;
+      border-bottom: 1px solid var(--rule);
+      background: var(--white);
+    }
+    .back-btn {
+      display:inline-flex; align-items:center; gap:0.5rem;
+      font-size:0.8rem; font-weight:600; letter-spacing:0.05em;
+      color:var(--muted); cursor:pointer; border:none; background:none;
+      font-family:var(--sans); transition:color 0.2s; padding:0;
+      text-transform:uppercase;
+    }
+    .back-btn:hover { color:var(--accent); }
+    .back-btn svg { transition:transform 0.2s; }
+    .back-btn:hover svg { transform:translateX(-3px); }
+
+    /* hero image */
+    .detail-hero {
+      width:100%; height:52vh; min-height:300px; max-height:520px;
+      overflow:hidden; background:var(--accent-light);
+      display:flex; align-items:center; justify-content:center;
+      position:relative;
+    }
+    .detail-hero img { width:100%; height:100%; object-fit:cover; display:block; }
+    .detail-hero-placeholder {
+      display:flex; flex-direction:column; align-items:center; gap:0.75rem;
+      color:var(--accent); font-size:0.78rem; font-weight:600;
+      letter-spacing:0.08em; text-transform:uppercase; text-align:center;
+    }
+    .detail-hero-placeholder svg { opacity:0.25; }
+
+    /* stats strip — sits right below the hero */
+    .detail-stats-strip {
+      background:var(--ink); padding:1.6rem 5vw;
+      display:flex; gap:3rem; flex-wrap:wrap;
+      justify-content:center;
+    }
+    .dstat { display:flex; flex-direction:column; align-items:center; text-align:center; }
+    .dstat-num { font-family:var(--serif); font-size:2rem; color:var(--accent); line-height:1; }
+    .dstat-label { font-size:0.68rem; font-weight:500; letter-spacing:0.07em; text-transform:uppercase; color:#8AAFC4; margin-top:0.3rem; }
+
+    /* main content */
+    .detail-content { max-width:880px; margin:0 auto; padding:3.5rem 5vw 2rem; }
+    .detail-tag { font-size:0.7rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); margin-bottom:0.6rem; }
+    .detail-title { font-family:var(--serif); font-size:clamp(2rem,5vw,3rem); line-height:1.1; margin-bottom:2rem; }
+
+    .detail-body {
+      display:grid; grid-template-columns:1fr 1fr;
+      gap:3rem; margin-bottom:3rem;
+    }
+    .detail-desc p { font-size:0.96rem; color:var(--muted); line-height:1.78; margin-bottom:1rem; }
+    .detail-desc p:last-child { margin-bottom:0; }
+
+    .detail-sidebar { }
+    .sidebar-block { margin-bottom:1.75rem; }
+    .sidebar-label {
+      font-size:0.67rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase;
+      color:var(--muted); margin-bottom:0.6rem; padding-bottom:0.4rem;
+      border-bottom:1px solid var(--rule);
+    }
+    .sidebar-pills { display:flex; flex-wrap:wrap; gap:0.4rem; }
+    .pill {
+      font-size:0.78rem; font-weight:500; padding:0.28rem 0.7rem;
+      background:var(--accent-light); color:var(--accent-mid); border-radius:100px;
+    }
+    .sidebar-items { list-style:none; display:flex; flex-direction:column; gap:0.4rem; }
+    .sidebar-items li { font-size:0.88rem; color:var(--ink); display:flex; align-items:flex-start; gap:0.45rem; }
+    .sidebar-items li::before { content:'→'; color:var(--accent); font-size:0.8rem; flex-shrink:0; margin-top:0.1rem; }
+
+    /* additional images */
+    .detail-gallery-label {
+      font-size:0.67rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase;
+      color:var(--muted); margin-bottom:1rem; padding-bottom:0.4rem; border-bottom:1px solid var(--rule);
+    }
+    .detail-gallery { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem; margin-bottom:3rem; }
+    .detail-gallery-img {
+      aspect-ratio:4/3; overflow:hidden; border-radius:5px;
+      border:1px solid var(--rule); background:var(--accent-light);
+      display:flex; align-items:center; justify-content:center;
+    }
+    .detail-gallery-img img { width:100%; height:100%; object-fit:cover; display:block; }
+    .detail-gallery-placeholder {
+      display:flex; flex-direction:column; align-items:center; gap:0.4rem;
+      font-size:0.65rem; font-weight:600; letter-spacing:0.07em; text-transform:uppercase;
+      color:var(--accent); text-align:center; padding:0.75rem;
+    }
+    .detail-gallery-placeholder svg { opacity:0.25; }
+
+    /* wip notice on detail */
+    .wip-notice {
+      background:rgba(42,143,196,0.07); border:1px dashed var(--accent);
+      border-radius:6px; padding:1.5rem 2rem; margin-bottom:2.5rem;
+      display:flex; align-items:flex-start; gap:1rem;
+    }
+    .wip-notice-dot { width:8px; height:8px; border-radius:50%; background:var(--accent); flex-shrink:0; margin-top:0.35rem; animation:pulse 1.5s infinite; }
+    .wip-notice p { font-size:0.9rem; color:var(--accent-mid); line-height:1.65; }
+    .wip-notice strong { color:var(--ink); }
+
+    /* ─── RESPONSIVE ─────────────────────────── */
+    @media (max-width:660px) {
+      #about-section .container { grid-template-columns:1fr; gap:2.5rem; }
+      .detail-body { grid-template-columns:1fr; gap:2rem; }
+      .detail-stats-strip { gap:2rem; }
+      footer { flex-direction:column; gap:0.4rem; text-align:center; }
+    }
+    @media (prefers-reduced-motion:reduce) {
+      * { transition:none!important; transform:none!important; animation:none!important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ NAV ════════════════════════════════════ -->
+<nav>
+  <span class="nav-logo" onclick="goHome()">Prakul</span>
+  <ul class="nav-links">
+    <li><a onclick="goHome(); scrollTo('projects-section')">Projects</a></li>
+    <li><a onclick="goHome(); scrollTo('about-section')">About</a></li>
+    <li><a onclick="goHome(); scrollTo('skills-section')">Skills</a></li>
+    <li><a onclick="goHome(); scrollTo('contact-section')">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- ═══ HOME VIEW ══════════════════════════════ -->
+<div id="home-view" class="view active">
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-inner">
+      <p class="hero-eyebrow">Mechanical Engineering · UT Austin · Class of Spring 2028</p>
+      <h1>Design it light.<br/><em>Make it hold.</em></h1>
+      <p class="hero-sub">
+        ME student specializing in structural design, FEA, and motorsports engineering.
+        I build things that survive real loads — validated in simulation, proven in hardware.
+        Open to internships and co-ops in the Seattle area, including part-time during the school year.
+      </p>
+      <div class="hero-cta">
+        <button class="btn btn-primary" onclick="scrollTo('projects-section')">See my work</button>
+        <button class="btn btn-ghost" onclick="scrollTo('contact-section')">Get in touch</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects-section">
+    <div class="container">
+      <div class="tick-rule"><span class="tick-label">Projects & Experience</span></div>
+      <h2>Selected work.</h2>
+      <p class="section-sub">Real hardware, real loads, real constraints.</p>
+      <div class="projects-grid">
+
+        <!-- BAJA -->
+        <div class="project-card" onclick="openProject('baja')">
+          <div class="card-thumb">
+            <!-- Replace: <img src="baja-upright.jpg" alt="Baja SAE Front Upright"> -->
+            <div class="thumb-placeholder">
+              <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#2A8FC4" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+              Add photo or Ansys stress plot
+            </div>
+            <div class="card-arrow">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2A8FC4" stroke-width="2.5"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-tag">SolidWorks · Ansys FEA · Motorsports</div>
+            <div class="card-title">Baja SAE — Front Upright Design Lead</div>
+            <p class="card-desc">Redesigned front upright geometry for an off-road racing vehicle. Validated against 6,400 N vertical and 4,800 N braking loads in Ansys.</p>
+            <div class="card-stats">
+              <div class="cstat"><span class="cstat-num">54%</span><span class="cstat-label">Mass reduction</span></div>
+              <div class="cstat"><span class="cstat-num">1.85 lb</span><span class="cstat-label">Final weight</span></div>
+              <div class="cstat"><span class="cstat-num">6,400 N</span><span class="cstat-label">Peak load</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CHESSBOT -->
+        <div class="project-card" onclick="openProject('chessbot')">
+          <div class="card-thumb">
+            <!-- Replace: <img src="chessbot.jpg" alt="IEEE RAS Chessbot"> -->
+            <div class="thumb-placeholder">
+              <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#2A8FC4" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
+              Add photo of Chessbot
+            </div>
+            <div class="card-arrow">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2A8FC4" stroke-width="2.5"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-tag">Robotics · CAD · 3D Printing</div>
+            <div class="card-title">IEEE RAS — AI Chess Robot (CoreXY)</div>
+            <p class="card-desc">Designed the mechanical system for an AI-powered chess robot. Modeled and printed the gantry components and electromagnet housing.</p>
+          </div>
+        </div>
+
+        <!-- SUMMER PROJECT WIP -->
+        <div class="project-card wip" onclick="openProject('summer')">
+          <div class="card-thumb" style="background:rgba(42,143,196,0.06);">
+            <div class="thumb-placeholder">
+              <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#2A8FC4" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
+              CFD results coming Aug 2026
+            </div>
+            <div class="card-arrow">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2A8FC4" stroke-width="2.5"><path d="M7 17L17 7M7 7h10v10"/></svg>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="wip-badge"><span class="wip-dot"></span>In progress</div>
+            <div class="card-tag">CFD · Ansys Fluent · Python</div>
+            <div class="card-title">EV Cold Plate — Thermal Optimization</div>
+            <p class="card-desc">Optimizing liquid-cooled cold plate channel geometry for EV battery thermal management using CFD simulation and Python-swept parameter studies.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about-section">
+    <div class="container">
+      <div class="about-body">
+        <div class="tick-rule"><span class="tick-label">About</span></div>
+        <h2>Engineer.<br/>Racer. Builder.</h2>
+        <p>I'm Prakul, a rising junior at UT Austin studying Mechanical Engineering (GPA 3.74). My work sits at the intersection of structural design, FEA simulation, and hands-on fabrication — most visibly through Longhorn Baja SAE, where I lead front upright design for our off-road race vehicle.</p>
+        <p>Outside the lab, I'm a flagging marshal at COTA for FIA WEC and Trans Am events, a sim racing competitor, and a hobby roboticist through IEEE RAS. I'm drawn to problems where weight, load, and geometry all have to come together precisely.</p>
+        <p>I'm actively looking for internships and co-ops in the Seattle area — including part-time roles that work alongside the school year. Long-term I'm aiming for graduate school in mechanical or aerospace engineering.</p>
+      </div>
+      <div class="about-stats">
+        <div class="astat"><div class="astat-num">3.74</div><div class="astat-label">GPA · UT Austin ME</div></div>
+        <div class="astat"><div class="astat-num">54%</div><div class="astat-label">Unsprung mass reduction, Baja SAE upright</div></div>
+        <div class="astat"><div class="astat-num">Spring '28</div><div class="astat-label">Expected graduation · UT Austin</div></div>
+        <div class="astat"><div class="astat-num">COTA</div><div class="astat-label">FIA WEC & Trans Am F&C Marshal</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills-section">
+    <div class="container">
+      <div class="tick-rule"><span class="tick-label">Skills</span></div>
+      <h2>Tools & knowledge.</h2>
+      <div class="skills-grid">
+        <div class="skill-group">
+          <h3>CAD & Modeling</h3>
+          <ul class="skill-list"><li>SolidWorks</li><li>Fusion 360</li></ul>
+        </div>
+        <div class="skill-group">
+          <h3>Simulation</h3>
+          <ul class="skill-list"><li>Ansys FEA</li><li>Ansys Fluent / CFD</li><li>Telemetry analysis</li></ul>
+        </div>
+        <div class="skill-group">
+          <h3>Programming</h3>
+          <ul class="skill-list"><li>Python</li><li>Parametric scripting</li></ul>
+        </div>
+        <div class="skill-group">
+          <h3>Manufacturing</h3>
+          <ul class="skill-list"><li>3D Printing (FDM)</li><li>Rapid prototyping</li></ul>
+        </div>
+        <div class="skill-group">
+          <h3>Coursework</h3>
+          <ul class="skill-list"><li>Dynamics</li><li>Mechanics of Solids</li><li>Combustion Engines</li><li>Fluid Mechanics</li><li>Materials Engineering</li></ul>
+        </div>
+        <div class="skill-group">
+          <h3>Activities</h3>
+          <ul class="skill-list"><li>Longhorn Baja SAE</li><li>IEEE RAS</li><li>Longhorn Sim Racing</li><li>UT ASME</li><li>SCCA F&C Marshal</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact-section">
+    <div class="container">
+      <div class="tick-rule" style="justify-content:center;"><span class="tick-label">Contact</span></div>
+      <h2 class="contact-heading">Let's build something.</h2>
+      <p class="contact-sub">
+        Looking for internships and co-ops in the Seattle area, including part-time roles during the school year.
+        Working on interesting hardware problems — robotics, automotive, thermal systems? I'd love to talk.
+      </p>
+      <div class="contact-links">
+        <a href="mailto:your@email.com" class="btn btn-primary">Email me</a>
+        <a href="https://linkedin.com/in/yourprofile" target="_blank" rel="noopener" class="btn btn-ghost">LinkedIn</a>
+        <a href="resume.pdf" class="btn btn-ghost">Download résumé</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>© 2026 Prakul</span>
+    <span>Mechanical Engineering · UT Austin · Open to Seattle opportunities</span>
+  </footer>
+
+</div><!-- /home-view -->
+
+<!-- ═══ DETAIL VIEW ═════════════════════════════ -->
+<div id="detail-view" class="view">
+
+  <div class="detail-back-bar">
+    <button class="back-btn" onclick="goHome()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Back to projects
+    </button>
+  </div>
+
+  <!-- hero image -->
+  <div class="detail-hero" id="detail-hero-img">
+    <div class="detail-hero-placeholder" id="detail-hero-placeholder">
+      <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#2A8FC4" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg>
+      Add your main project photo here
+    </div>
+  </div>
+
+  <!-- stats strip — hidden when no stats -->
+  <div class="detail-stats-strip" id="detail-stats-strip"></div>
+
+  <!-- main content -->
+  <div class="detail-content">
+    <div class="detail-tag" id="detail-tag"></div>
+    <div class="detail-title" id="detail-title"></div>
+
+    <!-- wip notice (only shown for wip projects) -->
+    <div class="wip-notice" id="detail-wip-notice" style="display:none;">
+      <div class="wip-notice-dot"></div>
+      <p><strong>This project is in progress.</strong> Full documentation, CFD results, and images will be posted here in August 2026.</p>
+    </div>
+
+    <div class="detail-body">
+      <div class="detail-desc" id="detail-desc"></div>
+      <div class="detail-sidebar" id="detail-sidebar"></div>
+    </div>
+
+    <!-- extra images -->
+    <div id="detail-gallery-section">
+      <div class="detail-gallery-label">Project photos</div>
+      <div class="detail-gallery" id="detail-gallery"></div>
+    </div>
+  </div>
+
+</div><!-- /detail-view -->
+
+<!-- ═══ DATA + LOGIC ════════════════════════════ -->
+<script>
+const PROJECTS = {
+  baja: {
+    tag: "SolidWorks · Ansys FEA · Motorsports",
+    title: "Baja SAE — Front Upright Design Lead",
+    wip: false,
+    heroSrc: "",            // → set to: "baja-hero.jpg"
+    heroAlt: "Front upright CAD render or Ansys stress plot",
+    stats: [
+      { num: "54%",     label: "Unsprung mass reduction" },
+      { num: "1.85 lb", label: "Final part weight" },
+      { num: "6,400 N", label: "Peak vertical load" },
+      { num: "4,800 N", label: "Peak braking load" },
+    ],
+    desc: [
+      "As Front Upright Design Lead for Longhorn Baja SAE, I owned the complete design cycle of the front upright — from geometry definition and packaging constraints through structural validation and final part sign-off.",
+      "Starting from a baseline upright over 4 lbs, I rebuilt the geometry in SolidWorks with targeted pocketing and material removal, guided by a series of Ansys FEA runs simulating worst-case load combinations: a 6,400 N vertical load during steering-bump interactions and a 4,800 N braking frictional force applied simultaneously. Each iteration kept stress concentrations below the material allowable while removing as much unnecessary material as possible.",
+      "The final design came in at 1.85 lbs — a 54% reduction in unsprung mass. Reduced unsprung mass improves the wheel's ability to follow the terrain, which directly translates to handling and lap time. I coordinated geometry with four adjacent subsystems (steering, suspension, braking, and wheel assembly) to ensure compatibility throughout packaging."
+    ],
+    tools: ["SolidWorks", "Ansys Mechanical (FEA)", "GD&T / Engineering drawings"],
+    highlights: [
+      "Full design cycle ownership: concept → validation → sign-off",
+      "Simultaneous multi-axis load case simulation",
+      "Cross-subsystem packaging coordination with 4 teams",
+      "Material selection for strength-to-weight optimization"
+    ],
+    // Add up to 3 extra images below the main content
+    // gallery: ["baja-fea.jpg", "baja-physical.jpg", "baja-cad-detail.jpg"]
+    gallery: ["", "", ""]   // replace strings with filenames, or remove entries
+  },
+
+  chessbot: {
+    tag: "Robotics · CAD · 3D Printing",
+    title: "IEEE RAS — AI Chess Robot (CoreXY)",
+    wip: false,
+    heroSrc: "",            // → "chessbot-hero.jpg"
+    heroAlt: "Chessbot full assembly",
+    stats: [],              // no quantitative stats — that's fine
+    desc: [
+      "As part of UT Austin's IEEE Robotics and Automation Society, I led the mechanical design of an AI-powered chess robot capable of autonomously moving pieces based on player input and computer vision output.",
+      "The motion system uses a CoreXY gantry architecture — chosen over a simpler Cartesian layout because it keeps both motors stationary, which reduces the moving mass on each axis and allows faster, more precise positioning across the board. I designed all gantry components in CAD and printed them in-house, iterating on belt tensioner geometry and carriage fits until backlash was negligible.",
+      "The electromagnet that picks up and places pieces required a custom housing. Clearance was tight: the case needed to sit within the piece's height profile while leaving room for the coil and wiring, and it had to be reprinted in a material with low magnetic permeability so it wouldn't interfere with the field. Getting the print tolerances right for a sliding-fit piece holder took several iterations."
+    ],
+    tools: ["SolidWorks / Fusion 360", "FDM 3D Printing", "Tolerance analysis", "Electromagnetic components"],
+    highlights: [
+      "CoreXY architecture selected for reduced moving mass vs. Cartesian",
+      "Custom electromagnet housing designed to tight clearance constraints",
+      "Iterated belt tensioner and carriage geometry to minimize backlash",
+      "Printed in low-magnetic-permeability material to avoid field interference"
+    ],
+    gallery: ["", ""]
+  },
+
+  summer: {
+    tag: "CFD · Ansys Fluent · Python",
+    title: "EV Cold Plate — Thermal Optimization",
+    wip: true,
+    heroSrc: "",
+    heroAlt: "CFD temperature distribution render",
+    stats: [],
+    desc: [
+      "This project is targeting the thermal management problem in EV battery packs: keeping cells within their optimal temperature window (typically 15–35°C) under varying discharge loads. The approach uses a liquid-cooled cold plate with internal channels pressed against the battery module.",
+      "The simulation workflow starts in Ansys Fluent, where I'm modeling conjugate heat transfer between the coolant (water-glycol mix), the aluminum plate, and a representative battery cell heat load. Python scripts sweep channel geometry parameters — width, depth, fin spacing, and inlet flow rate — across a defined design space, running each case and extracting thermal resistance and pressure drop.",
+      "The goal is a Pareto front between thermal resistance and pumping power: the lowest thermal resistance usually comes with the highest pressure drop, and the optimization finds the channel geometry that achieves a target temperature uniformity with acceptable parasitic loss. Full results and documentation will be posted here in August 2026."
+    ],
+    tools: ["Ansys Fluent (CFD)", "Python (parameter sweep + post-processing)", "SolidWorks (geometry)"],
+    highlights: [
+      "Conjugate heat transfer modeling: fluid, plate, and heat source",
+      "Python-automated parameter sweep across channel geometry variables",
+      "Pareto optimization: thermal resistance vs. pumping power",
+      "Target: temperature uniformity within ±2°C across battery module"
+    ],
+    gallery: []
+  }
+};
+
+// ─── VIEW MANAGEMENT ────────────────────────────
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => {
+    v.classList.remove('active');
+    v.style.opacity = '0';
+  });
+  const el = document.getElementById(id);
+  el.classList.add('active');
+  requestAnimationFrame(() => { el.style.opacity = '1'; });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goHome() {
+  showView('home-view');
+  history.pushState({}, '', window.location.pathname);
+}
+
+function scrollTo(id) {
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 60);
+}
+
+// ─── OPEN PROJECT ────────────────────────────────
+function openProject(key) {
+  const p = PROJECTS[key];
+  if (!p) return;
+
+  // hero image
+  const heroContainer = document.getElementById('detail-hero-img');
+  const heroPlaceholder = document.getElementById('detail-hero-placeholder');
+  if (p.heroSrc) {
+    heroPlaceholder.style.display = 'none';
+    let img = heroContainer.querySelector('img.detail-hero-real');
+    if (!img) { img = document.createElement('img'); img.className = 'detail-hero-real'; heroContainer.appendChild(img); }
+    img.src = p.heroSrc; img.alt = p.heroAlt; img.style.display = 'block';
+  } else {
+    heroPlaceholder.style.display = 'flex';
+    const existing = heroContainer.querySelector('img.detail-hero-real');
+    if (existing) existing.style.display = 'none';
+    heroPlaceholder.querySelector('p') && heroPlaceholder.querySelector('p').remove();
+    const hint = document.createElement('p');
+    hint.textContent = p.heroAlt;
+    heroPlaceholder.appendChild(hint);
+  }
+
+  // stats strip
+  const strip = document.getElementById('detail-stats-strip');
+  if (p.stats && p.stats.length) {
+    strip.style.display = 'flex';
+    strip.innerHTML = p.stats.map(s =>
+      `<div class="dstat"><div class="dstat-num">${s.num}</div><div class="dstat-label">${s.label}</div></div>`
+    ).join('');
+  } else {
+    strip.style.display = 'none';
+  }
+
+  // tag + title
+  document.getElementById('detail-tag').textContent = p.tag;
+  document.getElementById('detail-title').textContent = p.title;
+
+  // wip notice
+  document.getElementById('detail-wip-notice').style.display = p.wip ? 'flex' : 'none';
+
+  // description
+  document.getElementById('detail-desc').innerHTML = p.desc.map(d => `<p>${d}</p>`).join('');
+
+  // sidebar
+  let sidebar = '';
+  if (p.tools && p.tools.length) {
+    sidebar += `<div class="sidebar-block">
+      <div class="sidebar-label">Tools used</div>
+      <div class="sidebar-pills">${p.tools.map(t => `<span class="pill">${t}</span>`).join('')}</div>
+    </div>`;
+  }
+  if (p.highlights && p.highlights.length) {
+    sidebar += `<div class="sidebar-block">
+      <div class="sidebar-label">Key contributions</div>
+      <ul class="sidebar-items">${p.highlights.map(h => `<li>${h}</li>`).join('')}</ul>
+    </div>`;
+  }
+  document.getElementById('detail-sidebar').innerHTML = sidebar;
+
+  // gallery
+  const galSection = document.getElementById('detail-gallery-section');
+  const galGrid = document.getElementById('detail-gallery');
+  const imgs = (p.gallery || []).filter(Boolean); // only non-empty filenames
+  const placeholderCount = p.wip ? 0 : Math.max(0, 3 - imgs.length); // don't show placeholders for WIP
+
+  if (imgs.length === 0 && placeholderCount === 0) {
+    galSection.style.display = 'none';
+  } else {
+    galSection.style.display = 'block';
+    let galHtml = imgs.map(src =>
+      `<div class="detail-gallery-img"><img src="${src}" alt="Project photo" loading="lazy"></div>`
+    ).join('');
+    for (let i = 0; i < placeholderCount; i++) {
+      galHtml += `<div class="detail-gallery-img">
+        <div class="detail-gallery-placeholder">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2A8FC4" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          Add project photo
+        </div>
+      </div>`;
+    }
+    galGrid.innerHTML = galHtml;
+  }
+
+  history.pushState({ project: key }, '', `#${key}`);
+  showView('detail-view');
+}
+
+// handle browser back button
+window.addEventListener('popstate', e => {
+  if (e.state && e.state.project) openProject(e.state.project);
+  else goHome();
+});
+
+// handle direct URL with hash
+if (window.location.hash) {
+  const key = window.location.hash.slice(1);
+  if (PROJECTS[key]) openProject(key);
+}
+</script>
+
+</body>
+</html>
